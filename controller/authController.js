@@ -72,21 +72,16 @@ exports.signUp = catchAsync(async (req, res) => {
     secure: true,
   };
 
-  return res
-    .status(201)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        201,
-        {
-          createdUser,
-          accessToken,
-          refreshToken,
-        },
-        "User registered Successfully"
-      )
-    );
+  return res.status(201).cookie("refreshToken", refreshToken, options).json(
+    new ApiResponse(
+      201,
+      {
+        createdUser,
+        accessToken,
+      },
+      "User registered Successfully"
+    )
+  );
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -118,7 +113,6 @@ exports.login = catchAsync(async (req, res, next) => {
   };
   return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
       new ApiResponse(
@@ -126,7 +120,6 @@ exports.login = catchAsync(async (req, res, next) => {
         {
           user: loggedInUser,
           accessToken,
-          refreshToken,
         },
         "User logged In Successfully"
       )
@@ -153,7 +146,6 @@ exports.logoutUser = catchAsync(async (req, res) => {
 
   return res
     .status(200)
-    .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "User logged Out"));
 });
@@ -169,7 +161,10 @@ exports.refreshAccessToken = catchAsync(async (req, res, next) => {
   try {
     const decodedToken = jwt.verify(
       incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET,
+      {
+        ignoreExpiration: false,
+      }
     );
 
     const user = await User.findById(decodedToken?._id);
@@ -193,15 +188,8 @@ exports.refreshAccessToken = catchAsync(async (req, res, next) => {
 
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
-      .json(
-        new ApiResponse(
-          200,
-          { accessToken, refreshToken: refreshToken },
-          "Access token refreshed"
-        )
-      );
+      .json(new ApiResponse(200, { accessToken }, "Access token refreshed"));
   } catch (error) {
     throw new ApiError(401, error?.message || "Invalid refresh token");
   }
@@ -209,10 +197,7 @@ exports.refreshAccessToken = catchAsync(async (req, res, next) => {
 
 exports.protect = catchAsync(async (req, _, next) => {
   try {
-    console.log("access token: ", req.cookies?.accessToken);
-    const token =
-      req.cookies?.accessToken ||
-      req.header("Authorization")?.replace("Bearer ", "");
+    const token = req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
       throw new ApiError(401, "Unauthorized request");
