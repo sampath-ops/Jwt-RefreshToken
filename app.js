@@ -45,12 +45,12 @@ app.use(mongoSanitize());
 // Data sanitization against xss
 app.use(xss());
 
+app.use("/api/v1/users", userRouter);
+
 // ERROR HANDLER FOR INVALId ROUTES
 app.all("*", (req, res, next) => {
   next(new ApiError(404, `can't find ${req.originalUrl} on this server`));
 });
-
-app.use("/api/v1/users", userRouter);
 
 // GLOBAL ERROR HANDLER
 app.use(globalErrorHandler);
