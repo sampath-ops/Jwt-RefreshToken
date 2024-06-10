@@ -28,3 +28,5 @@ CORS_ORIGIN=http://localhost:3000
     ```bash
     npm run dev
     ```
+## Postman Collection
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://god.gw.postman.com/run-collection/16950495-19154515-b725-42e6-9380-fa0f5ce6c154?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D16950495-19154515-b725-42e6-9380-fa0f5ce6c154%26entityType%3Dcollection%26workspaceId%3Dc9d05461-29ee-4605-b1de-763c454a62b8)
