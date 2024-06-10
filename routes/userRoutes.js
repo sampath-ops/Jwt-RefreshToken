@@ -11,7 +11,11 @@ router.post("/login", authController.login);
 router.post("/refresh-token",authController.refreshAccessToken)
 
 //secured routes
-router.route("/logout").post(authController.protect, authController.logoutUser)
-router.route("/current-user").get(authController.protect, userController.getCurrentUser)
+router.use(authController.protect);
+router.route("/logout").post(authController.logoutUser)
+router.route("/current-user").get(userController.getCurrentUser)
+
+router.use(authController.restrictTo('admin'));
+router.route("/getAllUsers").get(authController.getAllUsers)
 
 module.exports = router;

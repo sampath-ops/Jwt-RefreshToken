@@ -102,7 +102,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
   const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
     user._id
-  );
+  ); 
   const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
@@ -218,4 +218,26 @@ exports.protect = catchAsync(async (req, _, next) => {
   } catch (error) {
     throw new ApiError(401, error?.message || "Invalid access token");
   }
+});
+
+exports.restrictTo = (...roles) => {
+  
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have permission to perform this action', 403)
+      );
+    }
+    next();
+  };
+};
+
+exports.getAllUsers = catchAsync(async (req, res, next) => {
+  const users = await User.find().select('-password'); // Exclude password from the response
+
+  if (!users) {
+    return next(new ApiError(404, "No users found"));
+  }
+
+  res.status(200).json(new ApiResponse(200, users, "Users fetched successfully"));
 });
